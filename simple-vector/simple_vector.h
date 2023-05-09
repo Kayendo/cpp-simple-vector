@@ -68,8 +68,7 @@ public:
         ConstructorAssistant(other);
     }
     
-    SimpleVector(SimpleVector&& other)
-    {
+    SimpleVector(SimpleVector&& other) {
         items_ = std::move(other.items_);
 		size_ = std::exchange(other.size_, 0);
 		capacity_ = std::exchange(other.capacity_, 0);
@@ -81,6 +80,7 @@ public:
                 Clear();
                 return *this;
             }
+
             SimpleVector<Type> arr_ptr(rhs.size_);
             std::copy(rhs.begin(), rhs.end(), arr_ptr.begin());
             arr_ptr.capacity_ = rhs.capacity_;
@@ -95,7 +95,8 @@ public:
                 Clear();
                 return *this;
             }
-            SimpleVector<Type> arr_ptr(rhs.size_);
+
+        	SimpleVector<Type> arr_ptr(rhs.size_);
             std::copy(rhs.begin(), rhs.end(), arr_ptr.begin());
             arr_ptr.capacity_ = rhs.capacity_;
             swap(arr_ptr);
@@ -219,7 +220,7 @@ public:
 	        capacity_ = new_capacity;
 	    }
 	        
-	        size_ = new_size;
+	    size_ = new_size;
 	}
     
     // Добавляет элемент в конец вектора
@@ -252,49 +253,49 @@ public:
     }
 
    
-    Iterator Insert(ConstIterator pos, const Type& value) {
-    assert(pos >= cbegin() && pos <= cend());
-    
-    auto pos_element = std::distance(cbegin(), pos);
-    
-    if (size_ < capacity_) {
-        std::copy_backward(pos, cend(), &items_[(size_ + 1)]);
-        items_[pos_element] = value;
-    } else {
-        auto new_capacity = std::max(size_t(1), 2 * capacity_); 
-        ArrayPtr<Type> arr_ptr(new_capacity);
-        std::copy(&items_[0], &items_[pos_element], &arr_ptr[0]);
-        std::copy_backward(pos, cend(), &arr_ptr[(size_ + 1)]);
-        arr_ptr[pos_element] = value;
-        items_.swap(arr_ptr);
-        capacity_ = new_capacity;
-    }
+   	Iterator Insert(ConstIterator pos, const Type& value) {	
+	    assert(pos >= cbegin() && pos <= cend());
+	    
+	    auto pos_element = std::distance(cbegin(), pos);
+	    
+	    if (size_ < capacity_) {
+	        std::copy_backward(pos, cend(), &items_[(size_ + 1)]);
+	        items_[pos_element] = value;
+	    } else {
+	        auto new_capacity = std::max(size_t(1), 2 * capacity_); 
+	        ArrayPtr<Type> arr_ptr(new_capacity);
+	        std::copy(&items_[0], &items_[pos_element], &arr_ptr[0]);
+	    	std::copy_backward(pos, cend(), &arr_ptr[(size_ + 1)]);
+	        arr_ptr[pos_element] = value;
+	        items_.swap(arr_ptr);
+	        capacity_ = new_capacity;
+    	}
         
         ++size_;
         return Iterator{&items_[pos_element]};
     }
     
 	Iterator Insert(ConstIterator pos, Type&& value) {
-    assert(pos >= cbegin() && pos <= cend());
-    
-    auto no_const_pos = const_cast<Iterator>(pos);
-    auto pos_element = std::distance(begin(), no_const_pos);
-    
-    if (size_ < capacity_) {
-        std::move_backward(no_const_pos, end(), &items_[(size_ + 1)]);
-        items_[pos_element] = std::move(value);
-    } else {
-        auto new_capacity = std::max(size_t(1), 2 * capacity_);
-        ArrayPtr<Type> arr_ptr(new_capacity);
-        std::move(&items_[0], &items_[pos_element], &arr_ptr[0]);
-        std::move_backward(no_const_pos, end(), &arr_ptr[(size_ + 1)]);
-        arr_ptr[pos_element] = std::move(value);
-        items_.swap(arr_ptr);
-        capacity_ = new_capacity;
-    }
-        
-        ++size_;
-        return Iterator{&items_[pos_element]};
+	    assert(pos >= cbegin() && pos <= cend());
+	    
+	    auto no_const_pos = const_cast<Iterator>(pos);
+	    auto pos_element = std::distance(begin(), no_const_pos);
+	    
+	    if (size_ < capacity_) {
+	        std::move_backward(no_const_pos, end(), &items_[(size_ + 1)]);
+	        items_[pos_element] = std::move(value);
+	    } else {
+	        auto new_capacity = std::max(size_t(1), 2 * capacity_);
+	        ArrayPtr<Type> arr_ptr(new_capacity);
+	        std::move(&items_[0], &items_[pos_element], &arr_ptr[0]);
+	        std::move_backward(no_const_pos, end(), &arr_ptr[(size_ + 1)]);
+	        arr_ptr[pos_element] = std::move(value);
+	        items_.swap(arr_ptr);
+	        capacity_ = new_capacity;
+	    }
+	        
+	    ++size_;
+	    return Iterator{&items_[pos_element]};
     }
 
     // "Удаляет" последний элемент вектора. Вектор не должен быть пустым
@@ -305,13 +306,13 @@ public:
 
     // Удаляет элемент вектора в указанной позиции
 	Iterator Erase(ConstIterator pos) {
-    assert(pos >= cbegin() && pos < cend());
-    auto no_const_pos = const_cast<Iterator>(pos);
-    auto pos_element = std::distance(begin(), no_const_pos);
-    std::move(std::make_move_iterator(++no_const_pos), std::make_move_iterator(end()), &items_[pos_element]);
-    --size_;
-    return &items_[pos_element];
-}
+	    assert(pos >= cbegin() && pos < cend());
+	    auto no_const_pos = const_cast<Iterator>(pos);
+	    auto pos_element = std::distance(begin(), no_const_pos);
+	    std::move(std::make_move_iterator(++no_const_pos), std::make_move_iterator(end()), &items_[pos_element]);
+	    --size_;
+	    return &items_[pos_element];
+	}
 
     // Обменивает значение с другим вектором
     void swap(SimpleVector& other) noexcept {
@@ -328,33 +329,33 @@ private:
     
 };
 
-template <typename Type>
-inline bool operator==(const SimpleVector<Type>& lhs, const SimpleVector<Type>& rhs) {
-    if (lhs.GetSize() != rhs.GetSize()) return false;
-    return std::equal(lhs.begin(),lhs.end(),rhs.begin());
-}
+	template <typename Type>
+	inline bool operator==(const SimpleVector<Type>& lhs, const SimpleVector<Type>& rhs) {
+	    if (lhs.GetSize() != rhs.GetSize()) return false;
+	    return std::equal(lhs.begin(),lhs.end(),rhs.begin());
+	}
 
-template <typename Type>
-inline bool operator!=(const SimpleVector<Type>& lhs, const SimpleVector<Type>& rhs) {
-    return !(lhs == rhs);
-}
+	template <typename Type>
+	inline bool operator!=(const SimpleVector<Type>& lhs, const SimpleVector<Type>& rhs) {
+	    return !(lhs == rhs);
+	}
 
-template <typename Type>
-inline bool operator<(const SimpleVector<Type>& lhs, const SimpleVector<Type>& rhs) {
-    return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
-}
+	template <typename Type>
+	inline bool operator<(const SimpleVector<Type>& lhs, const SimpleVector<Type>& rhs) {
+	    return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+	}
 
-template <typename Type>
-inline bool operator<=(const SimpleVector<Type>& lhs, const SimpleVector<Type>& rhs) {
-    return !(rhs < lhs);
-}
+	template <typename Type>
+	inline bool operator<=(const SimpleVector<Type>& lhs, const SimpleVector<Type>& rhs) {
+	    return !(rhs < lhs);
+	}
 
-template <typename Type>
-inline bool operator>(const SimpleVector<Type>& lhs, const SimpleVector<Type>& rhs) {
-    return rhs < lhs;
-}
+	template <typename Type>
+	inline bool operator>(const SimpleVector<Type>& lhs, const SimpleVector<Type>& rhs) {
+	    return rhs < lhs;
+	}
 
-template <typename Type>
-inline bool operator>=(const SimpleVector<Type>& lhs, const SimpleVector<Type>& rhs) {
-    return !(rhs > lhs);
-}
+	template <typename Type>
+	inline bool operator>=(const SimpleVector<Type>& lhs, const SimpleVector<Type>& rhs) {
+	    return !(rhs > lhs);
+	}
